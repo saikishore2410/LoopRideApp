@@ -93,10 +93,9 @@ public class LoopRideApp {
         String path = exchange.getRequestURI().getPath();
 
         String response;
-        int statusCode;
+        int statusCode = 200;
 
         if (path.equals("/") || path.equals("/index.html")) {
-            statusCode = 200;
 
             response = HTML;
 
@@ -161,6 +160,7 @@ public class LoopRideApp {
                 "Content-Type",
                 "application/json; charset=UTF-8"
             );
+            statusCode = 404;
         }
 
         exchange.getResponseHeaders().set(
