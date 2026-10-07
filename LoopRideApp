@@ -93,8 +93,10 @@ public class LoopRideApp {
         String path = exchange.getRequestURI().getPath();
 
         String response;
+        int statusCode;
 
         if (path.equals("/") || path.equals("/index.html")) {
+            statusCode = 200;
 
             response = HTML;
 
@@ -171,7 +173,7 @@ public class LoopRideApp {
         );
 
         exchange.sendResponseHeaders(
-            200,
+            statusCode,
             bytes.length
         );
 
