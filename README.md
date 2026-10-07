@@ -10,14 +10,16 @@ A lightweight ride-hailing demo built as a single Java HTTP server with an embed
 
 ```
 LoopRideApp.java
+Dockerfile
 README.md
+.github/workflows/ci.yml
 ```
 
-The Java source is named `LoopRideApp.java` and declares the class `project.LoopRideApp.java`.
+The Java source declares the class `project.LoopRideApp`.
 
-## Run the application
+## Run locally
 
-From the directory containing the source file:
+Compile and run:
 
 ```bash
 javac -d . LoopRideApp.java
@@ -32,13 +34,23 @@ To request a specific port:
 java project.LoopRideApp 9000
 ```
 
-Then open:
+Then open the port printed by the application, for example:
 
 ```
 http://localhost:8080
 ```
 
-Use the port printed by the application if 8080 is unavailable.
+## Deploy with Docker
+
+The repository includes a Java 17 Dockerfile suitable for a web-service host.
+
+The container:
+
+1. Uses Eclipse Temurin JDK 17.
+2. Compiles `LoopRideApp.java`.
+3. Starts `project.LoopRideApp`.
+4. Uses the host-provided `PORT` environment variable.
+5. Binds the HTTP server to `0.0.0.0` for external access.
 
 ## Available endpoints
 
@@ -86,7 +98,9 @@ This repository is a demo application, not a production ride-hailing platform.
 
 ## Testing
 
-There is currently no automated test suite. At minimum, manually verify:
+GitHub Actions compiles the application and performs HTTP smoke tests for the main endpoints and the expected 404 response.
+
+For local verification, manually check:
 
 1. The application starts successfully on JDK 17+.
 2. `GET /` returns HTTP 200 and HTML.
