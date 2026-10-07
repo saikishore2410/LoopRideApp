@@ -9,18 +9,18 @@ A lightweight ride-hailing demo built as a single Java HTTP server with an embed
 ## Project structure
 
 ```
-LoopRideApp
+LoopRideApp.java
 README.md
 ```
 
-The Java source is named `LoopRideApp` and declares the class `project.LoopRideApp`.
+The Java source is named `LoopRideApp.java` and declares the class `project.LoopRideApp.java`.
 
 ## Run the application
 
 From the directory containing the source file:
 
 ```bash
-javac -d . LoopRideApp
+javac -d . LoopRideApp.java
 java project.LoopRideApp
 ```
 
