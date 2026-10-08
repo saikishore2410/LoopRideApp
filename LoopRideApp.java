@@ -71,6 +71,23 @@ public class LoopRideApp {
 
     private static void handle(HttpExchange exchange) throws IOException {
         String path = exchange.getRequestURI().getPath();
+        String method = exchange.getRequestMethod();
+
+        if (!"GET".equalsIgnoreCase(method)) {
+            byte[] bytes = """
+                {
+                    "error": "Method not allowed"
+                }
+                """.getBytes(StandardCharsets.UTF_8);
+            exchange.getResponseHeaders().set("Content-Type", "application/json; charset=UTF-8");
+            exchange.getResponseHeaders().set("Allow", "GET");
+            exchange.getResponseHeaders().set("Cache-Control", "no-store");
+            exchange.sendResponseHeaders(405, bytes.length);
+            try (OutputStream output = exchange.getResponseBody()) {
+                output.write(bytes);
+            }
+            return;
+        }
 
         String response;
         int statusCode = 200;
