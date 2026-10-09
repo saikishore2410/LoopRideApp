@@ -55,7 +55,11 @@ public class LoopRideApp {
         String path = exchange.getRequestURI().getPath();
         String method = exchange.getRequestMethod();
         if (!"GET".equalsIgnoreCase(method)) {
-            byte[] bytes = "{\\n    \"error\": \"Method not allowed\"\\n}".getBytes(StandardCharsets.UTF_8);
+            byte[] bytes = """
+                {
+                    "error": "Method not allowed"
+                }
+                """.getBytes(StandardCharsets.UTF_8);
             exchange.getResponseHeaders().set("Content-Type", "application/json; charset=UTF-8");
             exchange.getResponseHeaders().set("Allow", "GET");
             exchange.getResponseHeaders().set("Cache-Control", "no-store");
