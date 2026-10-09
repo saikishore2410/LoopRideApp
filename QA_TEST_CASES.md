@@ -1,16 +1,20 @@
 # QA Test Case Scenarios
 
-| ID | Scenario | Expected |
-|---|---|---|
-| LR-01 | GET / | 200 and HTML content |
-| LR-02 | GET /index.html | 200 and HTML content |
-| LR-03 | GET /api/health | 200 and status UP |
-| LR-04 | GET /api/rider | 200 and rider role |
-| LR-05 | GET /api/driver | 200 and driver role |
-| LR-06 | GET unknown endpoint | 404 JSON error |
-| LR-07 | POST any endpoint | 405 and Allow: GET |
-| LR-08 | PUT/DELETE/PATCH endpoint | 405 and no state mutation |
-| LR-09 | Server starts on requested free port | Process starts and health responds |
-| LR-10 | Requested port is unavailable | Startup falls back to configured ports when no explicit port is required |
-| LR-11 | Concurrent GET requests | All valid requests receive complete responses |
-| LR-12 | HTML rider/driver switching | Correct section visibility and active button state |
+| ID | Test | Expected result | Automation |
+|---|---|---|---|
+| LR-01 | GET / | HTTP 200, HTML content and Rider UI | GitHub Actions |
+| LR-02 | GET /index.html | HTTP 200 and Driver UI markup | GitHub Actions |
+| LR-03 | GET /api/health | HTTP 200, JSON content type and status UP | GitHub Actions |
+| LR-04 | GET /api/rider | HTTP 200, rider role and ready status | GitHub Actions |
+| LR-05 | GET /api/driver | HTTP 200, driver role, offline state | GitHub Actions |
+| LR-06 | GET /api/does-not-exist | HTTP 404 and JSON error | GitHub Actions |
+| LR-07 | GET /unknown-page | HTTP 404 and JSON error | GitHub Actions |
+| LR-08 | POST /api/health | HTTP 405, JSON error and Allow: GET | GitHub Actions |
+| LR-09 | PUT /api/health | HTTP 405, JSON error and Allow: GET | GitHub Actions |
+| LR-10 | PATCH /api/health | HTTP 405, JSON error and Allow: GET | GitHub Actions |
+| LR-11 | DELETE /api/health | HTTP 405, JSON error and Allow: GET | GitHub Actions |
+| LR-12 | HEAD /api/health | HTTP 405, not a false HTTP 200 | GitHub Actions |
+| LR-13 | Compile with JDK 17 | Source compiles without errors | GitHub Actions |
+| LR-14 | UI destinations and role switching | Markup includes rider/driver UI | Partially covered by smoke checks; browser automation not configured |
+| LR-15 | Driver toggle behavior | Toggle updates visible state locally | Manual browser test |
+| LR-16 | Concurrent request handling | Each request receives a complete response | Not yet automated |
