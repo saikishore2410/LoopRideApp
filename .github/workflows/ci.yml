@@ -5,10 +5,15 @@ on:
     branches: [main]
   pull_request:
     branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
 
 jobs:
   smoke-test:
     runs-on: ubuntu-latest
+    timeout-minutes: 5
 
     steps:
       - name: Checkout
@@ -21,33 +26,89 @@ jobs:
           java-version: '17'
 
       - name: Compile
-        run: javac -d . LoopRideApp.java
+        run: |
+          set -eu
+          javac -Xlint:all -d . LoopRideApp.java
+          test -f project/LoopRideApp.class
 
       - name: Start server
         run: |
+          set -eu
           java project.LoopRideApp 18080 > server.log 2>&1 &
           echo $! > server.pid
+          ready=0
           for i in {1..20}; do
-            if curl -fsS http://127.0.0.1:18080/api/health >/dev/null; then
+            if curl --silent --show-error --fail http://127.0.0.1:18080/api/health >/dev/null; then
+              ready=1
               break
             fi
             sleep 1
           done
+          if [ "$ready" -ne 1 ]; then
+            cat server.log
+            exit 1
+          fi
 
-      - name: Smoke test endpoints
+      - name: Test routes, response bodies, headers, and methods
         run: |
-          test "$(curl -sS -o /dev/null -w '%{http_code}' http://127.0.0.1:18080/)" = "200"
-          test "$(curl -sS -o /dev/null -w '%{http_code}' http://127.0.0.1:18080/index.html)" = "200"
-          test "$(curl -sS -o /dev/null -w '%{http_code}' http://127.0.0.1:18080/api/health)" = "200"
-          test "$(curl -sS -o /dev/null -w '%{http_code}' http://127.0.0.1:18080/api/rider)" = "200"
-          test "$(curl -sS -o /dev/null -w '%{http_code}' http://127.0.0.1:18080/api/driver)" = "200"
-          test "$(curl -sS -o /dev/null -w '%{http_code}' http://127.0.0.1:18080/api/does-not-exist)" = "404"
-          curl -fsS http://127.0.0.1:18080/api/health | grep -q '"status": "UP"'
-          curl -fsS http://127.0.0.1:18080/api/rider | grep -q '"role": "rider"'
-          curl -fsS http://127.0.0.1:18080/api/driver | grep -q '"role": "driver"'
+          set -eu
+          base=http://127.0.0.1:18080
+          tmp="$(mktemp -d)"
+          trap 'rm -rf "$tmp"' EXIT
+
+          assert_status() {
+            expected="$1"
+            shift
+            actual="$(curl --silent --show-error -o "$tmp/body" -D "$tmp/headers" -w '%{http_code}' "$@")"
+            if [ "$actual" != "$expected" ]; then
+              echo "Expected HTTP $expected but received $actual for $*"
+              cat "$tmp/body"
+              exit 1
+            fi
+          }
+
+          assert_status 200 "$base/"
+          grep -qi 'Content-Type: text/html' "$tmp/headers"
+          grep -q 'Rider App' "$tmp/body"
+
+          assert_status 200 "$base/index.html"
+          grep -q 'Driver Dashboard' "$tmp/body"
+
+          assert_status 200 "$base/api/health"
+          grep -qi 'Content-Type: application/json' "$tmp/headers"
+          grep -q '"status": "UP"' "$tmp/body"
+          grep -q '"application": "Loop Ride App"' "$tmp/body"
+
+          assert_status 200 "$base/api/rider"
+          grep -q '"role": "rider"' "$tmp/body"
+          grep -q '"status": "ready"' "$tmp/body"
+
+          assert_status 200 "$base/api/driver"
+          grep -q '"role": "driver"' "$tmp/body"
+          grep -q '"online": false' "$tmp/body"
+          grep -q '"status": "offline"' "$tmp/body"
+
+          assert_status 404 "$base/api/does-not-exist"
+          grep -qi 'Content-Type: application/json' "$tmp/headers"
+          grep -q '"error": "Endpoint not found"' "$tmp/body"
+
+          assert_status 404 "$base/unknown-page"
+          grep -q '"error": "Endpoint not found"' "$tmp/body"
+
+          for method in POST PUT PATCH DELETE; do
+            assert_status 405 -X "$method" "$base/api/health"
+            grep -qi 'Allow: GET' "$tmp/headers"
+            grep -q '"error": "Method not allowed"' "$tmp/body"
+          done
+
+          # HEAD is not supported by this API; it must not accidentally return 200.
+          status="$(curl --silent --show-error -I -o /dev/null -w '%{http_code}' "$base/api/health")"
+          test "$status" = "405"
 
       - name: Stop server
         if: always()
         run: |
-          if [ -f server.pid ]; then kill "$(cat server.pid)" || true; fi
+          if [ -f server.pid ]; then
+            kill "$(cat server.pid)" 2>/dev/null || true
+          fi
           cat server.log || true
