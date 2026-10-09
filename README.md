@@ -1,6 +1,6 @@
 # Loop Ride App
 
-A lightweight ride-hailing demo built as a single Java HTTP server with embedded Rider and Driver web UI.
+A responsive ride-hailing demo built as a single Java HTTP server with embedded Rider and Driver web UI.
 
 ## Requirements
 
@@ -78,6 +78,17 @@ The demo displays destination cards for Gachibowli, Banjara Hills, Secunderabad 
 
 The demo dashboard includes an online/offline toggle, example earnings/ride/empty-kilometre counters and busy-zone cards for Gachibowli, HITEC City and Banjara Hills. Driver status is loaded from `/api/driver`.
 
+## UI features
+
+- Responsive layouts for desktop, tablet and mobile screens, including touch-friendly controls and reduced-motion support.
+- Rider destination search with an empty state when no destination matches.
+- Pickup location input, selectable destination cards, sample distance/fare estimates, trip summary and clear-trip action.
+- Demo ride-request confirmation that explicitly states no real booking is created.
+- Driver availability toggle, sample dashboard metrics and busy-zone cards.
+- Keyboard focus states, accessible labels, pressed states and live status announcements.
+
+Fare and distance values are illustrative. The app does not have a live booking service, geocoding, route calculation or payment integration.
+
 ## Current limitations
 
 This is a demonstration application, not a production ride-hailing service.
@@ -89,7 +100,7 @@ This is a demonstration application, not a production ride-hailing service.
 
 ## Testing
 
-GitHub Actions compiles the source on JDK 17 and checks HTTP status codes, response content types and bodies for valid routes, unknown routes and unsupported HTTP methods.
+GitHub Actions compiles the source on JDK 17, checks HTTP status codes and response bodies, runs Playwright browser tests for rider/driver workflows and mobile layout, and builds/runs a Docker container for endpoint smoke checks.
 
 See [QA test cases](QA_TEST_CASES.md) and [QA execution documentation](QA_EXECUTION.md) for the test inventory and validation notes.
 
