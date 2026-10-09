@@ -157,7 +157,19 @@ jobs:
             sleep 1
           done
           if [ "$ready" -ne 1 ]; then docker logs loop-ride-app-test; exit 1; fi
-          test "$(curl --silent --output /dev/null --write-out '%{http_code}' http://127.0.0.1:18081/)" = "200"
-          test "$(curl --silent --output /dev/null --write-out '%{http_code}' http://127.0.0.1:18081/api/health)" = "200"
-          test "$(curl --silent --output /dev/null --write-out '%{http_code}' http://127.0.0.1:18081/api/not-found)" = "404"
-          curl --silent --show-error http://127.0.0.1:18081/api/health | grep -q '"status": "UP"'
+          request_status() {
+            url="$1"
+            expected="$2"
+            for attempt in {1..10}; do
+              status="$(curl --silent --output /dev/null --write-out '%{http_code}' "$url" || true)"
+              if [ "$status" = "$expected" ]; then return 0; fi
+              sleep 1
+            done
+            echo "Expected HTTP $expected from $url; last response was $status"
+            docker logs loop-ride-app-test
+            return 1
+          }
+          request_status http://127.0.0.1:18081/ 200
+          request_status http://127.0.0.1:18081/api/health 200
+          request_status http://127.0.0.1:18081/api/not-found 404
+          curl --retry 5 --retry-connrefused --retry-delay 1 --silent --show-error http://127.0.0.1:18081/api/health | grep -q '"status": "UP"'
