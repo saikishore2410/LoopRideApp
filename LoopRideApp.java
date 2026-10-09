@@ -55,7 +55,7 @@ public class LoopRideApp {
         String path = exchange.getRequestURI().getPath();
         String method = exchange.getRequestMethod();
         if (!"GET".equalsIgnoreCase(method)) {
-            byte[] bytes = "{\"error\":\"Method not allowed\"}".getBytes(StandardCharsets.UTF_8);
+            byte[] bytes = "{\\n    \"error\": \"Method not allowed\"\\n}".getBytes(StandardCharsets.UTF_8);
             exchange.getResponseHeaders().set("Content-Type", "application/json; charset=UTF-8");
             exchange.getResponseHeaders().set("Allow", "GET");
             exchange.getResponseHeaders().set("Cache-Control", "no-store");
@@ -71,22 +71,22 @@ public class LoopRideApp {
             exchange.getResponseHeaders().set("Content-Type", "text/html; charset=UTF-8");
         } else if (path.equals("/api/health")) {
             response = """
-                {"status":"UP","application":"Loop Ride App","message":"Server is running"}
+                {"status": "UP", "application": "Loop Ride App", "message": "Server is running"}
                 """;
             exchange.getResponseHeaders().set("Content-Type", "application/json; charset=UTF-8");
         } else if (path.equals("/api/rider")) {
             response = """
-                {"role":"rider","status":"ready"}
+                {"role": "rider", "status": "ready"}
                 """;
             exchange.getResponseHeaders().set("Content-Type", "application/json; charset=UTF-8");
         } else if (path.equals("/api/driver")) {
             response = """
-                {"role":"driver","online":false,"status":"offline"}
+                {"role": "driver", "online": false, "status": "offline"}
                 """;
             exchange.getResponseHeaders().set("Content-Type", "application/json; charset=UTF-8");
         } else {
             response = """
-                {"error":"Endpoint not found"}
+                {"error": "Endpoint not found"}
                 """;
             exchange.getResponseHeaders().set("Content-Type", "application/json; charset=UTF-8");
             statusCode = 404;
