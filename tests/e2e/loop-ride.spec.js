@@ -40,7 +40,7 @@ test('driver online toggle changes visible status and busy zones are rendered', 
   await expect(page.locator('#driverStatus')).toContainText('ONLINE');
   await online.uncheck();
   await expect(page.locator('#driverStatus')).toContainText('offline');
-  await expect(page.getByText('HITEC City')).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'HITEC City' })).toBeVisible();
   await expect(page.getByText('Sample bonus ₹40')).toBeVisible();
 });
 
