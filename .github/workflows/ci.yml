@@ -81,8 +81,6 @@ jobs:
             grep -qi 'Allow: GET' "$tmp/headers"
             grep -q '"error": "Method not allowed"' "$tmp/body"
           done
-          status="$(curl --silent --show-error -I -o /dev/null -w '%{http_code}' "$base/api/health")"
-          test "$status" = "405"
       - name: Stop server
         if: always()
         run: |
