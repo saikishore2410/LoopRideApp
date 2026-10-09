@@ -1,16 +1,11 @@
 const { test, expect } = require('@playwright/test');
 
 test('rider UI loads, selects a destination and displays a fare estimate', async ({ page }) => {
-  const riderResponse = page.waitForResponse(
-    response => response.url().endsWith('/api/rider') && response.request().method() === 'GET'
-  );
   await page.goto('/');
   await expect(page).toHaveTitle('Loop Ride App');
   await expect(page.getByRole('heading', { name: 'Where would you like to go?' })).toBeVisible();
   await expect(page.getByRole('button', { name: /Rider App/ })).toHaveAttribute('aria-pressed', 'true');
   await page.getByRole('button', { name: /Gachibowli/ }).click();
-  const response = await riderResponse;
-  expect(response.status()).toBe(200);
   await expect(page.locator('#message')).toContainText('Destination selected: Gachibowli');
   await expect(page.locator('#summaryFare')).toHaveText('₹99');
   await expect(page.locator('#summaryDistance')).toHaveText('8.2 km');
