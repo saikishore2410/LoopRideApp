@@ -2,8 +2,8 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { AppShell, PageHeader } from "@/components/rp/AppShell";
 import { DemoBadge } from "@/components/rp/bits";
 import { actions, useAppState } from "@/lib/transit/store";
-import { STOPS } from "@/lib/transit/data";
-import { fmtDateLong, fmtMin, googleMapsLink, routeById, routeStops } from "@/lib/transit/logic";
+import { STOPS, routeById } from "@/lib/transit/data";
+import { fmtDateLong, fmtMin, googleMapsLink, routeStops } from "@/lib/transit/logic";
 
 export const Route = createFileRoute("/trips")({ component: TripsPage });
 function TripsPage() {
