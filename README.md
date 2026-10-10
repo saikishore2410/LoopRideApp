@@ -1,111 +1,39 @@
-# Loop Ride App
+# RoutePulse AI — bus route discovery and tracking prototype
 
-A responsive ride-hailing demo built as a single Java HTTP server with embedded Rider and Driver web UI.
+Responsive Hyderabad bus route discovery with exact designated pickup/drop landmarks, stop order, scheduled departures, ETA estimates, transparent sample fares, saved trip notes, service alerts, preferences and a multilingual transit assistant.
 
-## Requirements
+## Data integrity
+**All schedules, fares, occupancy estimates, reliability history, notices and vehicle positions are illustrative demo data.** This is not an official TSRTC/TGSRTC feed and no real vehicle GPS, map tile provider or crowd sensors are connected. The map is schematic, and bus markers are simulated from the timetable. Verify all real-world details with the operator.
 
-- JDK 17 or newer
-- Docker (optional, for container deployment)
+## Features
+- Search demo departures by origin, destination, date and passenger count.
+- Accessibility filter based on listed stops and sample low-floor services.
+- Stop directory with landmark/address, step-free and shelter flags, and last-mile notes.
+- Schematic route map with pickup/drop markers and Google Maps deep links.
+- Explainable ETA confidence ranges, fare breakdowns and clearly labelled sample occupancy/reliability.
+- Save trips and favorite stops in local browser storage.
+- Demo service alerts and an operator test console for simulated delays and stop availability.
+- English/Hindi/Telugu assistant with an offline FAQ fallback when no LLM credential is configured.
+- Responsive desktop sidebar/mobile nav and accessible form labels.
 
-## Project structure
+## Architecture
+React 19 + TypeScript + TanStack Start/Router + Tailwind CSS. The transit model in `src/lib/transit/data.ts` is shaped for future GTFS adaptation; `logic.ts` handles search, route segments, fares, ETA windows and simulated positions. `src/lib/transit/store.ts` stores preferences/favorites/saved demo trips in local storage. `src/lib/assistant.ts` validates and sanitizes questions; `src/routes/api/chat.ts` proxies a server-side AI gateway if configured.
 
-```text
-LoopRideApp.java
-Dockerfile
-README.md
-QA_TEST_CASES.md
-QA_EXECUTION.md
-.github/workflows/ci.yml
+## Local development
+```sh
+bun install
+bun run dev
+bun run test
+bun run lint
+bun run build
 ```
+Or with Node/npm: `npm install`, `npm run dev`, `npm run test`, `npm run lint`, `npm run build`, `npm run start`.
 
-The Java source declares `project.LoopRideApp`. There are no Maven or Gradle dependencies; the server uses Java's built-in `HttpServer`.
+## Secrets
+`LOVABLE_API_KEY` is an optional **server-side** key for Lovable's AI gateway. Keep credentials out of source control and never use client-exposed `VITE_*` variables for LLM secrets. No real bus, route, or map provider is configured.
 
-## Run locally
+## Testing / production roadmap
+Tests cover route selection, input validation, fares, stop sequence, demo positions, assistant sanitization/fallback, and SSE parsing. CI runs tests, lint and build on this branch. Before live operation, connect an authorized GTFS timetable and GTFS-Realtime/AVL GPS source, implement authenticated rider/operator access and persistent database/RLS, add licensed map/routing services, ground LLM answers in verified feed data, and test with operators/accessibility users.
 
-Compile and run from the repository root:
-
-```bash
-javac -d . LoopRideApp.java
-java project.LoopRideApp
-```
-
-By default, the server tries ports 8080 through 8084. To request a specific port:
-
-```bash
-java project.LoopRideApp 9000
-```
-
-Open the address printed by the application, for example `http://localhost:8080`.
-
-## Deploy with Docker
-
-The Dockerfile uses Eclipse Temurin JDK 17, compiles the Java source and starts the server. It respects the host-provided `PORT` environment variable and binds to `0.0.0.0`.
-
-```bash
-docker build -t loop-ride-app .
-docker run --rm -p 10000:10000 -e PORT=10000 loop-ride-app
-```
-
-If you change the host port mapping, set the container `PORT` consistently with the right-hand/container port.
-
-## API endpoints
-
-All supported application routes currently accept **GET** requests.
-
-| Method | Path | Success response |
-|---|---|---|
-| GET | `/` | Rider/Driver HTML application |
-| GET | `/index.html` | Rider/Driver HTML application |
-| GET | `/api/health` | JSON health status |
-| GET | `/api/rider` | JSON rider status |
-| GET | `/api/driver` | JSON driver status |
-| GET | Any unknown path | HTTP 404 JSON error |
-| Other methods | Any path | HTTP 405 JSON error and `Allow: GET` |
-
-Example:
-
-```bash
-curl -i http://localhost:8080/api/health
-curl -i http://localhost:8080/api/unknown
-curl -i -X POST http://localhost:8080/api/health
-```
-
-## Rider UI
-
-The rider experience includes destination search, remembered demo trip history, saved pickup shortcuts (Home, Work and JNTU), selectable ride categories (Mini, Comfort and XL), live-updating illustrative fare estimates, pickup/destination summary, optional driver notes, and trip preferences.
-
-## Driver UI
-
-The demo dashboard includes an online/offline toggle, example earnings/ride/empty-kilometre counters and busy-zone cards for Gachibowli, HITEC City and Banjara Hills. Driver status is loaded from `/api/driver`.
-
-## UI features
-
-- Responsive layouts for desktop, tablet and mobile screens, including touch-friendly controls and reduced-motion support.
-- Rider destination search with a helpful empty state, saved pickup shortcuts and selectable destinations.
-- Ride categories (Mini, Comfort and XL) that update the illustrative fare before the demo request is reviewed.
-- Fare breakdown, distance and pickup summary, optional driver note, quiet-ride/luggage/accessibility preferences, and a trip-sharing safety reminder.
-- Up to five recent demo trip selections stored in the current browser with a reuse action and clear-history control.
-- Demo ride review explicitly states that no real driver is contacted and no booking is created.
-- Driver availability toggle, sample dashboard metrics and busy-zone cards.
-- Keyboard focus states, accessible labels, pressed states and live status announcements.
-
-Fare and distance values are illustrative. The app does not have a live booking service, geocoding, route calculation or payment integration.
-
-## Current limitations
-
-This is a demonstration application, not a production ride-hailing service.
-
-- UI selections and status toggles are in-browser demo interactions; they are not persisted by the server.
-- No authentication, user accounts, database, real ride matching, payments or persistent rider/driver data.
-- Displayed distances, counters and busy-zone bonuses are sample values.
-- The API currently offers health and role status endpoints only; booking, quote, driver action and trip-management APIs are not implemented.
-
-## Testing
-
-GitHub Actions compiles the source on JDK 17, checks HTTP status codes and response bodies, runs Playwright browser tests for rider/driver workflows and mobile layout, and builds/runs a Docker container for endpoint smoke checks.
-
-See [QA test cases](QA_TEST_CASES.md) and [QA execution documentation](QA_EXECUTION.md) for the test inventory and validation notes.
-
-## License
-
-No license has been added yet.
+## Disclaimer
+Not affiliated with TSRTC/TGSRTC unless an operator agreement and feed are explicitly added. Demo times, routes, fares, occupancy, reliability and positions are illustrative. Never use the demo for safety-critical decisions.

@@ -1,0 +1,11 @@
+services:
+  - type: web
+    name: routepulse-ai
+    runtime: node
+    plan: free
+    region: singapore
+    branch: routepulse-ai
+    buildCommand: npm install && npm run build
+    startCommand: npm run start
+    healthCheckPath: /
+    autoDeploy: true
