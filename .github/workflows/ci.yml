@@ -59,7 +59,7 @@ jobs:
           grep -qi 'Content-Type: text/html' "$tmp/headers"
           grep -q 'Rider App' "$tmp/body"
           assert_status 200 "$base/index.html"
-          grep -q 'Driver Dashboard' "$tmp/body"
+          grep -q 'Driver dashboard' "$tmp/body"
           assert_status 200 "$base/api/health"
           grep -qi 'Content-Type: application/json' "$tmp/headers"
           grep -q '"status": "UP"' "$tmp/body"

@@ -72,7 +72,7 @@ curl -i -X POST http://localhost:8080/api/health
 
 ## Rider UI
 
-The demo displays destination cards for Gachibowli, Banjara Hills, Secunderabad and Charminar. Selecting a destination calls `/api/rider` and displays the response status.
+The rider experience includes destination search, remembered demo trip history, saved pickup shortcuts (Home, Work and JNTU), selectable ride categories (Mini, Comfort and XL), live-updating illustrative fare estimates, pickup/destination summary, optional driver notes, and trip preferences.
 
 ## Driver UI
 
@@ -81,9 +81,11 @@ The demo dashboard includes an online/offline toggle, example earnings/ride/empt
 ## UI features
 
 - Responsive layouts for desktop, tablet and mobile screens, including touch-friendly controls and reduced-motion support.
-- Rider destination search with an empty state when no destination matches.
-- Pickup location input, selectable destination cards, sample distance/fare estimates, trip summary and clear-trip action.
-- Demo ride-request confirmation that explicitly states no real booking is created.
+- Rider destination search with a helpful empty state, saved pickup shortcuts and selectable destinations.
+- Ride categories (Mini, Comfort and XL) that update the illustrative fare before the demo request is reviewed.
+- Fare breakdown, distance and pickup summary, optional driver note, quiet-ride/luggage/accessibility preferences, and a trip-sharing safety reminder.
+- Up to five recent demo trip selections stored in the current browser with a reuse action and clear-history control.
+- Demo ride review explicitly states that no real driver is contacted and no booking is created.
 - Driver availability toggle, sample dashboard metrics and busy-zone cards.
 - Keyboard focus states, accessible labels, pressed states and live status announcements.
 

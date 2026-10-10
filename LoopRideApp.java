@@ -153,6 +153,25 @@ input[type=checkbox]{width:48px;height:27px;accent-color:var(--brand);cursor:poi
 .footer{text-align:center;color:var(--muted);font-size:.85rem;padding:0 12px 28px}.footer strong{color:var(--brand-dark)}
 @media(max-width:760px){.layout{grid-template-columns:1fr}.container{margin-top:20px}.header{padding:18px 16px}.pill{font-size:.75rem}.card{border-radius:16px}.layout aside{display:grid;grid-template-columns:1fr;gap:0}}
 @media(max-width:480px){.container{width:calc(100% - 20px);margin-top:14px}.brand-mark{width:38px;height:38px}.brand p{font-size:.78rem}.pill{display:none}.switch{margin-bottom:14px}.switch button{padding:10px 8px;font-size:.93rem}.card{padding:17px;margin-bottom:12px}.locations{grid-template-columns:1fr}.location{padding:14px}.location.selected{padding:13px}.actions{flex-direction:column}.actions button{width:100%}.info{gap:7px}.info-box{padding:13px 5px}.summary-row{font-size:.92rem}}
+
+/* Rider-focused enhancements */
+.ride-options{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px;margin:16px 0}
+.ride-option{border:1px solid var(--line);border-radius:13px;background:#fff;padding:12px 10px;text-align:left;cursor:pointer;color:var(--ink);min-width:0}
+.ride-option strong{display:block;font-size:.93rem}.ride-option span{display:block;color:var(--muted);font-size:.79rem;margin-top:4px}
+.ride-option.selected{border:2px solid var(--brand);padding:11px 9px;background:#effafa}
+.preference-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:12px}
+.preference{display:flex;align-items:flex-start;gap:9px;border:1px solid var(--line);border-radius:12px;padding:12px;font-size:.88rem;cursor:pointer}
+.preference input{width:18px;height:18px;accent-color:var(--brand);flex-shrink:0;margin-top:2px}
+.saved-places{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.saved-place{border:1px solid #cde5e6;border-radius:999px;padding:8px 12px;background:#f1fbfb;color:var(--brand-dark);cursor:pointer;font-weight:700;font-size:.85rem}
+.recent-item{display:flex;justify-content:space-between;gap:10px;align-items:center;border-top:1px solid var(--line);padding:12px 0}
+.recent-item:first-child{border-top:0}.recent-item strong{display:block;font-size:.92rem}.recent-item span{display:block;color:var(--muted);font-size:.8rem}
+.recent-item button{border:1px solid var(--line);border-radius:9px;background:#fff;padding:7px 9px;color:var(--brand-dark);font-weight:700;cursor:pointer}
+.fare-breakdown{border-top:1px solid #d7e9e9;margin-top:10px;padding-top:10px}
+.fare-breakdown .summary-row{font-size:.86rem}
+.ride-meta{color:var(--muted);font-size:.82rem;margin:8px 0 0}
+@media(max-width:480px){.ride-options{gap:6px}.ride-option{padding:10px 7px}.ride-option.selected{padding:9px 6px}.ride-option strong{font-size:.85rem}.ride-option span{font-size:.73rem}.preference-grid{grid-template-columns:1fr}}
+
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;transition:none!important;animation:none!important}}
 </style>
 </head>
@@ -175,7 +194,12 @@ input[type=checkbox]{width:48px;height:27px;accent-color:var(--brand);cursor:poi
         <div class="eyebrow">Your next journey</div>
         <h2 id="riderTitle">Where would you like to go?</h2>
         <p class="subtext">Choose a destination to see a sample fare estimate.</p>
-        <div class="field"><label for="pickup">Pickup location</label><input id="pickup" maxlength="80" placeholder="e.g. JNTU, Kukatpally" autocomplete="street-address"></div>
+        <div class="field"><label for="pickup">Pickup location</label><input id="pickup" maxlength="80" placeholder="e.g. JNTU, Kukatpally" autocomplete="street-address"><div class="saved-places" aria-label="Saved pickup places"><button class="saved-place" type="button" onclick="useSavedPickup('Home · Kukatpally')">⌂ Home</button><button class="saved-place" type="button" onclick="useSavedPickup('Office · HITEC City')">▦ Work</button><button class="saved-place" type="button" onclick="useSavedPickup('JNTU, Kukatpally')">＋ JNTU</button></div></div>
+        <div class="field"><label>Choose a ride</label><div class="ride-options" role="group" aria-label="Choose ride type">
+          <button class="ride-option selected" type="button" data-ride="Loop Mini" data-multiplier="1" onclick="selectRideType('Loop Mini',1,this)" aria-pressed="true"><strong>🚗 Mini</strong><span>Everyday · 1×</span></button>
+          <button class="ride-option" type="button" data-ride="Loop Comfort" data-multiplier="1.35" onclick="selectRideType('Loop Comfort',1.35,this)" aria-pressed="false"><strong>🚙 Comfort</strong><span>Extra comfort</span></button>
+          <button class="ride-option" type="button" data-ride="Loop XL" data-multiplier="1.7" onclick="selectRideType('Loop XL',1.7,this)" aria-pressed="false"><strong>🚐 XL</strong><span>More space</span></button>
+        </div></div>
         <div class="search-wrap"><span class="search-icon" aria-hidden="true">⌕</span><label class="hidden" for="destinationSearch">Search destinations</label><input id="destinationSearch" type="search" placeholder="Search Hyderabad destinations..." autocomplete="off" oninput="filterDestinations()"></div>
         <div class="locations" id="destinationList">
           <button class="location" type="button" data-destination="Gachibowli" data-distance="8.2" onclick="selectDestination('Gachibowli',8.2)"><div class="location-top"><h3>Gachibowli</h3><span class="distance">8.2 km</span></div><p>IT parks · Financial District</p><div class="fare">From ₹99</div></button>
@@ -189,10 +213,27 @@ input[type=checkbox]{width:48px;height:27px;accent-color:var(--brand);cursor:poi
           <div class="summary-row"><span>Pickup</span><strong id="summaryPickup">Add pickup location</strong></div>
           <div class="summary-row"><span>Destination</span><strong id="summaryDestination">—</strong></div>
           <div class="summary-row"><span>Estimated distance</span><strong id="summaryDistance">—</strong></div>
+          <div class="summary-row"><span>Ride type</span><strong id="summaryRideType">Loop Mini</strong></div>
           <div class="summary-row"><span>Estimated fare</span><strong id="summaryFare">—</strong></div>
-          <p class="subtext" style="font-size:.82rem;margin:10px 0 0">Demo estimate only. Actual prices and driver availability are not connected.</p>
+          <div class="fare-breakdown">
+            <div class="summary-row"><span>Base fare</span><strong id="fareBase">—</strong></div>
+            <div class="summary-row"><span>Estimated distance charge</span><strong id="fareDistance">—</strong></div>
+            <div class="summary-row"><span>Ride type adjustment</span><strong id="fareRideAdjustment">Included</strong></div>
+          </div>
+          <p class="ride-meta">Illustrative fare only; actual route, traffic, taxes and driver availability are not connected.</p>
+          <div class="field" style="margin-bottom:0"><label for="rideNote">Note for your driver (optional)</label><input id="rideNote" maxlength="120" placeholder="e.g. Please call on arrival"></div>
         </div>
-        <div class="actions"><button id="requestRide" class="primary" type="button" disabled onclick="requestRide()">Request demo ride</button><button class="secondary" type="button" onclick="resetTrip()">Clear trip</button></div>
+        <details class="card" style="box-shadow:none;padding:16px;margin-top:18px;margin-bottom:0" open>
+          <summary style="font-weight:800;cursor:pointer">Ride preferences</summary>
+          <p class="subtext" style="font-size:.85rem;margin:7px 0">Choose preferences to include with your demo request.</p>
+          <div class="preference-grid">
+            <label class="preference"><input type="checkbox" id="quietRide"><span><strong>Quiet ride</strong><br><span style="color:var(--muted)">Limit conversation</span></span></label>
+            <label class="preference"><input type="checkbox" id="extraLuggage"><span><strong>Extra luggage</strong><br><span style="color:var(--muted)">Mention larger bags</span></span></label>
+            <label class="preference"><input type="checkbox" id="accessibilityNeed"><span><strong>Accessibility needs</strong><br><span style="color:var(--muted)">Flag assistance request</span></span></label>
+            <label class="preference"><input type="checkbox" id="shareTrip"><span><strong>Trip safety reminder</strong><br><span style="color:var(--muted)">Show sharing reminder</span></span></label>
+          </div>
+        </details>
+        <div class="actions"><button id="requestRide" class="primary" type="button" disabled onclick="requestRide()">Review demo ride</button><button class="secondary" type="button" onclick="resetTrip()">Clear trip</button></div>
         <div id="message" class="notice" role="status" aria-live="polite"></div>
       </div>
       <aside>
@@ -201,7 +242,8 @@ input[type=checkbox]{width:48px;height:27px;accent-color:var(--brand);cursor:poi
           <p class="subtext" style="margin-bottom:12px">Search places, review an estimate and see your trip summary before continuing.</p>
           <div class="status">✓ Mobile-friendly layout<br>✓ Clear fare estimate<br>✓ Keyboard-accessible controls</div>
         </div>
-        <div class="card"><h2>Popular destinations</h2><p class="subtext" style="margin-bottom:0">Gachibowli · HITEC City · Banjara Hills · Charminar</p></div>
+        <div class="card"><h2>Recent demo trips</h2><p class="subtext" style="margin-bottom:8px">Your last few demo selections on this browser.</p><div id="recentTrips"><p class="ride-meta">No recent trips yet. Select a destination to begin.</p></div><button class="secondary" style="width:100%;margin-top:6px" type="button" onclick="clearRecentTrips()">Clear history</button></div>
+        <div class="card"><h2>Popular destinations</h2><p class="subtext" style="margin-bottom:0">Gachibowli · Banjara Hills · Secunderabad · Charminar</p></div>
       </aside>
     </div>
   </section>
@@ -231,8 +273,92 @@ input[type=checkbox]{width:48px;height:27px;accent-color:var(--brand);cursor:poi
 </main>
 <footer class="footer"><strong>Loop Ride</strong> · A responsive ride-booking concept · Demo only, no real bookings or payments</footer>
 <script>
-const state = { destination: null, distance: 0 };
+const state = { destination: null, distance: 0, rideType: 'Loop Mini', multiplier: 1 };
 const fares = { 'Gachibowli': 99, 'Banjara Hills': 95, 'Secunderabad': 169, 'Charminar': 139 };
+const recentTripsKey = 'loopRideRecentTripsV1';
+const fareFor = destination => Math.round((fares[destination] || 0) * state.multiplier);
+function useSavedPickup(place) {
+  document.getElementById('pickup').value = place;
+  document.getElementById('pickup').dispatchEvent(new Event('input', { bubbles: true }));
+  document.getElementById('pickup').focus();
+}
+function selectRideType(name, multiplier, button) {
+  state.rideType = name;
+  state.multiplier = multiplier;
+  document.querySelectorAll('.ride-option').forEach(option => {
+    const selected = option === button;
+    option.classList.toggle('selected', selected);
+    option.setAttribute('aria-pressed', String(selected));
+  });
+  if (state.destination) updateTripSummary();
+}
+function updateTripSummary() {
+  const destination = state.destination;
+  if (!destination) return;
+  const base = fares[destination] || 0;
+  const finalFare = fareFor(destination);
+  document.getElementById('summaryPickup').textContent = document.getElementById('pickup').value.trim() || 'Pickup not specified';
+  document.getElementById('summaryDestination').textContent = destination;
+  document.getElementById('summaryDistance').textContent = state.distance.toFixed(1) + ' km';
+  document.getElementById('summaryRideType').textContent = state.rideType;
+  document.getElementById('summaryFare').textContent = '₹' + finalFare;
+  document.getElementById('fareBase').textContent = '₹' + Math.min(base, 50);
+  document.getElementById('fareDistance').textContent = '₹' + Math.max(0, base - 50);
+  document.getElementById('fareRideAdjustment').textContent = state.multiplier === 1 ? '₹0' : '+' + Math.round(base * (state.multiplier - 1)) + ' (approx.)';
+}
+function readRecentTrips() {
+  try {
+    const parsed = JSON.parse(localStorage.getItem(recentTripsKey) || '[]');
+    return Array.isArray(parsed) ? parsed.slice(0, 5) : [];
+  } catch { return []; }
+}
+function writeRecentTrip(trip) {
+  try {
+    const trips = [trip, ...readRecentTrips()].slice(0, 5);
+    localStorage.setItem(recentTripsKey, JSON.stringify(trips));
+  } catch { /* Storage may be unavailable in private browsing. */ }
+  renderRecentTrips();
+}
+function renderRecentTrips() {
+  const container = document.getElementById('recentTrips');
+  if (!container) return;
+  const trips = readRecentTrips();
+  if (!trips.length) {
+    container.innerHTML = '<p class="ride-meta">No recent trips yet. Select a destination to begin.</p>';
+    return;
+  }
+  container.replaceChildren(...trips.map(trip => {
+    const item = document.createElement('div');
+    item.className = 'recent-item';
+    const copy = document.createElement('div');
+    const title = document.createElement('strong');
+    title.textContent = trip.destination || 'Saved trip';
+    const detail = document.createElement('span');
+    detail.textContent = (trip.rideType || 'Loop Mini') + ' · ₹' + Number(trip.fare || 0);
+    copy.append(title, detail);
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.textContent = 'Reuse';
+    button.setAttribute('aria-label', 'Reuse trip to ' + (trip.destination || 'destination'));
+    button.addEventListener('click', () => {
+      if (trip.pickup) document.getElementById('pickup').value = trip.pickup;
+      if (trip.rideType) {
+        const config = { 'Loop Mini': 1, 'Loop Comfort': 1.35, 'Loop XL': 1.7 };
+        state.rideType = trip.rideType;
+        state.multiplier = config[trip.rideType] || 1;
+        const rideButton = Array.from(document.querySelectorAll('.ride-option')).find(option => option.dataset.ride === state.rideType);
+        if (rideButton) selectRideType(state.rideType, state.multiplier, rideButton);
+      }
+      selectDestination(trip.destination, Number(trip.distance) || 0);
+    });
+    item.append(copy, button);
+    return item;
+  }));
+}
+function clearRecentTrips() {
+  try { localStorage.removeItem(recentTripsKey); } catch {}
+  renderRecentTrips();
+}
 
 function showRider() {
   document.getElementById('rider').classList.remove('hidden');
@@ -269,10 +395,7 @@ function selectDestination(destination, distance) {
     card.classList.toggle('selected', selected);
     card.setAttribute('aria-pressed', String(selected));
   });
-  document.getElementById('summaryPickup').textContent = document.getElementById('pickup').value.trim() || 'Pickup not specified';
-  document.getElementById('summaryDestination').textContent = destination;
-  document.getElementById('summaryDistance').textContent = distance.toFixed(1) + ' km';
-  document.getElementById('summaryFare').textContent = '₹' + fares[destination];
+  updateTripSummary();
   document.getElementById('tripSummary').classList.remove('hidden');
   document.getElementById('requestRide').disabled = false;
   document.getElementById('message').textContent = 'Destination selected: ' + destination + '. Review your trip estimate above.';
@@ -283,8 +406,17 @@ function requestRide() {
     return;
   }
   const pickup = document.getElementById('pickup').value.trim();
-  document.getElementById('summaryPickup').textContent = pickup || 'Pickup not specified';
-  document.getElementById('message').textContent = 'Demo request prepared for ' + state.destination + '. No real driver has been contacted and no booking was created.';
+  updateTripSummary();
+  const preferences = [];
+  if (document.getElementById('quietRide').checked) preferences.push('quiet ride');
+  if (document.getElementById('extraLuggage').checked) preferences.push('extra luggage');
+  if (document.getElementById('accessibilityNeed').checked) preferences.push('accessibility assistance requested');
+  if (document.getElementById('shareTrip').checked) preferences.push('show trip-sharing reminder');
+  const note = document.getElementById('rideNote').value.trim();
+  writeRecentTrip({ pickup, destination: state.destination, distance: state.distance, fare: fareFor(state.destination), rideType: state.rideType, createdAt: new Date().toISOString() });
+  const extras = [...preferences, ...(note ? ['note: ' + note] : [])];
+  const safetyReminder = document.getElementById('shareTrip').checked ? ' Safety reminder: share trip details with someone you trust when using a real service.' : '';
+  document.getElementById('message').textContent = 'Demo request reviewed for ' + state.destination + ' · ' + state.rideType + ' · ₹' + fareFor(state.destination) + (extras.length ? '. Preferences: ' + extras.join(', ') : '') + '. No real driver has been contacted and no booking was created.' + safetyReminder;
 }
 function resetTrip() {
   state.destination = null;
@@ -299,6 +431,15 @@ function resetTrip() {
   document.getElementById('tripSummary').classList.add('hidden');
   document.getElementById('requestRide').disabled = true;
   document.getElementById('message').textContent = 'Trip cleared. Choose a destination to start again.';
+  state.rideType = 'Loop Mini';
+  state.multiplier = 1;
+  document.querySelectorAll('.ride-option').forEach((option, index) => {
+    option.classList.toggle('selected', index === 0);
+    option.setAttribute('aria-pressed', String(index === 0));
+  });
+  ['quietRide','extraLuggage','accessibilityNeed','shareTrip'].forEach(id => { document.getElementById(id).checked = false; });
+  document.getElementById('rideNote').value = '';
+
 }
 function toggleDriver() {
   const online = document.getElementById('online').checked;
@@ -325,6 +466,7 @@ document.getElementById('pickup').addEventListener('input', () => {
   }
 });
 document.querySelectorAll('[data-destination]').forEach(card => card.setAttribute('aria-pressed', 'false'));
+renderRecentTrips();
 </script>
 </body>
 </html>

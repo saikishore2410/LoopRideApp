@@ -48,11 +48,11 @@ test('request ride clearly states that this is a demo, then trip can be cleared'
   await page.goto('/');
   await page.getByLabel('Pickup location').fill('JNTU, Kukatpally');
   await page.getByRole('button', { name: /Gachibowli/ }).click();
-  await page.getByRole('button', { name: 'Request demo ride' }).click();
+  await page.getByRole('button', { name: 'Review demo ride' }).click();
   await expect(page.getByRole('status')).toContainText('No real driver has been contacted');
   await page.getByRole('button', { name: 'Clear trip' }).click();
   await expect(page.locator('#tripSummary')).toBeHidden();
-  await expect(page.getByRole('button', { name: 'Request demo ride' })).toBeDisabled();
+  await expect(page.locator('#requestRide')).toBeDisabled();
 });
 
 test('responsive layout fits a mobile viewport without horizontal overflow', async ({ page }) => {
@@ -77,4 +77,55 @@ test('browser has no uncaught page errors during primary navigation', async ({ p
   await page.getByRole('button', { name: /Charminar/ }).click();
   await expect(page.locator('#message')).toContainText('Destination selected: Charminar');
   expect(pageErrors).toEqual([]);
+});
+
+test('rider can switch ride type and fare estimate updates', async ({ page }) => {
+  await page.goto('/');
+  await page.getByRole('button', { name: /Gachibowli/ }).click();
+  await expect(page.locator('#summaryFare')).toHaveText('₹99');
+  await page.getByRole('button', { name: /Comfort/ }).click();
+  await expect(page.locator('#summaryRideType')).toHaveText('Loop Comfort');
+  await expect(page.locator('#summaryFare')).toHaveText('₹134');
+  await expect(page.getByRole('button', { name: /Comfort/ })).toHaveAttribute('aria-pressed', 'true');
+});
+
+test('saved pickup shortcuts, preferences and notes are included in a demo request review', async ({ page }) => {
+  await page.goto('/');
+  await page.getByRole('button', { name: /Home/ }).click();
+  await expect(page.getByLabel('Pickup location')).toHaveValue('Home · Kukatpally');
+  await page.getByRole('button', { name: /Charminar/ }).click();
+  await page.getByLabel('Quiet ride').check();
+  await page.getByLabel('Accessibility needs').check();
+  await page.getByLabel('Trip safety reminder').check();
+  await page.getByLabel('Note for your driver').fill('Call on arrival');
+  await page.getByRole('button', { name: 'Review demo ride' }).click();
+  await expect(page.locator('#message')).toContainText('quiet ride');
+  await expect(page.locator('#message')).toContainText('accessibility assistance requested');
+  await expect(page.locator('#message')).toContainText('Call on arrival');
+  await expect(page.locator('#message')).toContainText('share trip details');
+});
+
+test('recent trip can be reused and cleared', async ({ page }) => {
+  await page.goto('/');
+  await page.getByLabel('Pickup location').fill('JNTU, Kukatpally');
+  await page.getByRole('button', { name: /Secunderabad/ }).click();
+  await page.getByRole('button', { name: 'Review demo ride' }).click();
+  await expect(page.locator('#recentTrips')).toContainText('Loop Mini · ₹169');
+  await page.reload();
+  await page.getByRole('button', { name: 'Reuse trip to Secunderabad' }).click();
+  await expect(page.locator('#summaryDestination')).toHaveText('Secunderabad');
+  await expect(page.locator('#pickup')).toHaveValue('JNTU, Kukatpally');
+  await page.getByRole('button', { name: 'Clear history' }).click();
+  await expect(page.getByText('No recent trips yet.')).toBeVisible();
+});
+
+test('reset clears ride preferences and restores Mini ride selection', async ({ page }) => {
+  await page.goto('/');
+  await page.getByRole('button', { name: /Gachibowli/ }).click();
+  await page.getByRole('button', { name: /XL/ }).click();
+  await page.getByLabel('Quiet ride').check();
+  await page.getByRole('button', { name: 'Clear trip' }).click();
+  await expect(page.locator('#tripSummary')).toBeHidden();
+  await expect(page.getByRole('button', { name: /Mini/ })).toHaveAttribute('aria-pressed', 'true');
+  await expect(page.getByLabel('Quiet ride')).not.toBeChecked();
 });
