@@ -110,7 +110,7 @@ test('recent trip can be reused and cleared', async ({ page }) => {
   await page.getByLabel('Pickup location').fill('JNTU, Kukatpally');
   await page.getByRole('button', { name: /Secunderabad/ }).click();
   await page.getByRole('button', { name: 'Review demo ride' }).click();
-  await expect(page.getByText('Loop Mini · ₹169')).toBeVisible();
+  await expect(page.locator('#recentTrips')).toContainText('Loop Mini · ₹169');
   await page.reload();
   await page.getByRole('button', { name: 'Reuse trip to Secunderabad' }).click();
   await expect(page.locator('#summaryDestination')).toHaveText('Secunderabad');
