@@ -52,7 +52,7 @@ test('request ride clearly states that this is a demo, then trip can be cleared'
   await expect(page.getByRole('status')).toContainText('No real driver has been contacted');
   await page.getByRole('button', { name: 'Clear trip' }).click();
   await expect(page.locator('#tripSummary')).toBeHidden();
-  await expect(page.getByRole('button', { name: 'Request demo ride' })).toBeDisabled();
+  await expect(page.locator('#requestRide')).toBeDisabled();
 });
 
 test('responsive layout fits a mobile viewport without horizontal overflow', async ({ page }) => {
