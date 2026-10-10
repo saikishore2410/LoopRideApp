@@ -430,6 +430,7 @@ function resetTrip() {
   document.getElementById('noDestinations').classList.add('hidden');
   document.getElementById('tripSummary').classList.add('hidden');
   document.getElementById('requestRide').disabled = true;
+  document.getElementById('message').textContent = 'Trip cleared. Choose a destination to start again.';
   state.rideType = 'Loop Mini';
   state.multiplier = 1;
   document.querySelectorAll('.ride-option').forEach((option, index) => {
@@ -438,7 +439,7 @@ function resetTrip() {
   });
   ['quietRide','extraLuggage','accessibilityNeed','shareTrip'].forEach(id => { document.getElementById(id).checked = false; });
   document.getElementById('rideNote').value = '';
-  document.getElementById('message').textContent = 'Trip cleared. Choose a destination to start again.';
+
 }
 function toggleDriver() {
   const online = document.getElementById('online').checked;
